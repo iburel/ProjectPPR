@@ -28,8 +28,8 @@ jobs:
           path: Library
           key: Library
 
-      # Linter
-      - name: Run Linter
+      # StyleCop
+      - name: Run StyleCop
         run: |
             git clone "https://github.com/rookxx/StyleCopAnalyzers.CLI.git" ../linter
             STYLE_CHECK_COMMAND="dotnet ../linter/tools/bin/style/StyleCopAnalyzers.CLI.dll check Assets/Scenes"
@@ -49,6 +49,14 @@ jobs:
         with:
           unityVersion: 2019.4.14f1
           targetPlatform: StandaloneWindows64
+
+      # SonarQube
+      - name: Run SonarQube
+        run: |
+            dotnet tool install --global dotnet-sonarscanner
+            dotnet-sonarscanner begin /k:"ProjectPPR" /d:sonar.host.url="${{ secrets.SONAR_SERVER_URL }}" /d:sonar.login="${{ secrets.SONAR_LOGIN }}"
+            dotnet build ProjectPPR.sln
+            dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_LOGIN }}"
 
       # Output
       - uses: actions/upload-artifact@v2
