@@ -6,6 +6,8 @@ on:
 
 env:
   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+  SONAR_LOGIN: ${{ secrets.SONAR_LOGIN }}
+  SONAR_URL: ${{ secrets.SONAR_SERVER_URL }}
 
 jobs:
   build:
@@ -54,9 +56,10 @@ jobs:
       - name: Run SonarQube
         run: |
             dotnet tool install --global dotnet-sonarscanner
-            dotnet-sonarscanner begin /k:"ProjectPPR" /d:sonar.host.url="${{ secrets.SONAR_SERVER_URL }}" /d:sonar.login="${{ secrets.SONAR_LOGIN }}"
+            Unity -batchmode -nographics -logFile - -executeMethod UnityEditor.SyncVS.SyncSolution -projectPath . -quit
+            dotnet-sonarscanner begin /k:"ProjectPPR" /d:sonar.host.url="${SONAR_URL}" /d:sonar.login="${SONAR_LOGIN}"
             dotnet build ProjectPPR.sln
-            dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_LOGIN }}"
+            dotnet-sonarscanner end /d:sonar.login="${SONAR_LOGIN}"
 
       # Output
       - uses: actions/upload-artifact@v2
